@@ -1,9 +1,16 @@
-import express from 'express';
+import express, { Express, Request, Response } from "express";
+import dotenv from "dotenv";
 
-const app = express();
+dotenv.config();
 
-app.get('/', (req, res) => {
-    res.send('Hello world');
+const app: Express = express();
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello world");
+});
+
+app.get("/hello", (req: Request, res: Response) => {
+  res.send("Hello page");
 });
 
 export default app;

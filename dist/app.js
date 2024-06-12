@@ -8,4 +8,7 @@ const app = (0, express_1.default)();
 app.get('/', (req, res) => {
     res.send('Hello world');
 });
+app.get('/hello', (req, res) => {
+    res.send("Hello page");
+});
 exports.default = app;
