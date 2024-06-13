@@ -1,16 +1,12 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express } from "express";
 import dotenv from "dotenv";
+
+import healthCheckRoute from "./routes/health-check";
 
 dotenv.config();
 
 const app: Express = express();
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello world");
-});
-
-app.get("/hello", (req: Request, res: Response) => {
-  res.send("Hello page");
-});
+app.use("/healthCheck", healthCheckRoute);
 
 export default app;
