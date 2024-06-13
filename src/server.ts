@@ -1,6 +1,7 @@
-import app from './app';
+import app from "./app";
 
-const port = 3000;
+const PORT = 3000;
 
-app.listen(port, () => console.log(`[server]: server started at http://localhost:${port}`));
-
+app.listen(PORT, () => {
+  console.log(`[server]: server started at http://localhost:${PORT}`);
+});
