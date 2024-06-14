@@ -28,37 +28,47 @@ describe("health check", () => {
   });
 
   test("health check works", async () => {
-    await axios
-      .get("http://localhost:8000/healthCheck")
-      .then((response) => expect(response.status).toBe(200));
+    const response = await axios.get("http://localhost:8000/healthCheck", {
+      validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
+    });
+    expect(response.status).toBe(200);
   });
 
   test("subscribe returns 200 for valid form data", async () => {
-    let body = "name=genuine&email=genuine.basilnt%40gmail.com";
-    await axios
-      .post("http://localhost:8000/subscriptions", body, {
+    const body = "name=genuine&email=genuine.basilnt%40gmail.com";
+    const response = await axios.post(
+      "http://localhost:8000/subscriptions",
+      body,
+      {
         headers: {
-          "Content-Type": "applicaton/x-www-form-urlencoded",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-      })
-      .then((response) => expect(response.status).toBe(200));
+        validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
+      }
+    );
+    expect(response.status).toBe(200);
   });
 
   test("subscribe returns 400 when data is missing", async () => {
-    let testCases = [
+    const testCases = [
       { body: "name=genuine", errorMessage: "missing email" },
       { body: "email=genuine.basilnt@gmail.com", errorMessage: "missing name" },
       { body: "", errorMessage: "missing name and email" },
     ];
 
     for (const { body, errorMessage } of testCases) {
-      await axios
-        .post("http://localhost:8000/subscriptions", body, {
+      const response = await axios.post(
+        "http://localhost:8000/subscriptions",
+        body,
+        {
           headers: {
-            "Content-Type": "applicaton/x-www-form-urlencoded",
+            "Content-Type": "application/x-www-form-urlencoded",
           },
-        })
-        .then((response) => expect(response.statusText).toBe(errorMessage));
+          validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
+        }
+      );
+      expect(response.status).toBe(400);
+      expect(response.data).toContain(errorMessage);
     }
   });
 });
