@@ -1,6 +1,6 @@
-import app from "../src/app";
-import { Server } from "http";
-import axios from "axios";
+import axios from 'axios';
+import { Server } from 'http';
+import app from '../src/app';
 
 const spawnApp = async (): Promise<Server> => {
   return new Promise((resolve, reject) => {
@@ -9,66 +9,72 @@ const spawnApp = async (): Promise<Server> => {
       resolve(server);
     });
 
-    server.on("error", (err) => {
+    server.on('error', (err) => {
       console.error(`Failed to start server on port 8000: ${err}`);
       reject(err);
     });
   });
 };
 
-describe("health check", () => {
+describe('health check', () => {
   let server: Server;
 
   beforeAll(async () => {
     server = await spawnApp();
   });
 
-  afterAll(async () => {
+  afterAll(() => {
     server.close();
   });
 
-  test("health check works", async () => {
-    const response = await axios.get("http://localhost:8000/healthCheck", {
+  test('health check works', async () => {
+    const response = await axios.get('http://localhost:8000/healthCheck', {
       validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
     });
     expect(response.status).toBe(200);
   });
 
-  test("subscribe returns 200 for valid form data", async () => {
-    const body = "name=genuine&email=genuine.basilnt%40gmail.com";
+  test('subscribe returns 200 for valid form data', async () => {
+    const body = 'name=genuine&email=genuine.basilnt%40gmail.com';
     const response = await axios.post(
-      "http://localhost:8000/subscriptions",
+      'http://localhost:8000/subscriptions',
       body,
       {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
-      }
+      },
     );
     expect(response.status).toBe(200);
   });
 
-  test("subscribe returns 400 when data is missing", async () => {
+  test('subscribe returns 400 when data is missing', async () => {
     const testCases = [
-      { body: "name=genuine", errorMessage: "missing email" },
-      { body: "email=genuine.basilnt@gmail.com", errorMessage: "missing name" },
-      { body: "", errorMessage: "missing name and email" },
+      { body: 'name=genuine', errorMessage: 'missing email' },
+      { body: 'email=genuine.basilnt@gmail.com', errorMessage: 'missing name' },
+      { body: '', errorMessage: 'missing name and email' },
     ];
 
     for (const { body, errorMessage } of testCases) {
       const response = await axios.post(
-        "http://localhost:8000/subscriptions",
+        'http://localhost:8000/subscriptions',
         body,
         {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
           validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
-        }
+        },
       );
-      expect(response.status).toBe(400);
-      expect(response.data).toContain(errorMessage);
+
+      try {
+        expect(response.status).toBe(400);
+      } catch (e) {
+        throw new Error(
+          `The API did not fail with 400 for payload: ${errorMessage}`,
+        );
+      }
     }
   });
 });

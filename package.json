@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "start": "tsc && node dist/server.js",
-    "lint": "eslint --ignore-pattern .eslintignore --ext .js,.ts",
+    "lint": "npx eslint .",
     "dev": "nodemon src/server.ts",
     "test": "jest",
     "coverage": "jest --coverage"
