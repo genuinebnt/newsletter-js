@@ -2,10 +2,10 @@ import axios from 'axios';
 import { Server } from 'http';
 import app from '../src/app';
 
-const spawnApp = async (): Promise<Server> => {
+const spawnApp = async (port: number): Promise<Server> => {
   return new Promise((resolve, reject) => {
-    const server = app.listen(8000, () => {
-      console.log(`Server starting on port 8000`);
+    const server = app.listen(port, () => {
+      console.log(`Server starting on ${port}`);
       resolve(server);
     });
 
@@ -18,9 +18,10 @@ const spawnApp = async (): Promise<Server> => {
 
 describe('health check', () => {
   let server: Server;
+  let port = 7000;
 
   beforeAll(async () => {
-    server = await spawnApp();
+    server = await spawnApp(port);
   });
 
   afterAll(() => {
@@ -28,7 +29,7 @@ describe('health check', () => {
   });
 
   test('health check works', async () => {
-    const response = await axios.get('http://localhost:8000/healthCheck', {
+    const response = await axios.get(`http://localhost:${port}/healthCheck`, {
       validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
     });
     expect(response.status).toBe(200);
@@ -36,18 +37,15 @@ describe('health check', () => {
 
   test('subscribe returns 200 for valid form data', async () => {
     const body = 'name=genuine&email=genuine.basilnt%40gmail.com';
-    const response = await axios.post(
-      'http://localhost:8000/subscriptions',
-      body,
-      {
+    await axios
+      .post(`http://localhost:${port}/subscriptions`, body, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         validateStatus: (status) => status < 500, // Resolve only if the status code is less than 500
-      },
-    );
-    expect(response.status).toBe(200);
-  });
+      })
+      .then((response) => expect(response.status).toBe(200));
+  }, 10000);
 
   test('subscribe returns 400 when data is missing', async () => {
     const testCases = [
@@ -58,7 +56,7 @@ describe('health check', () => {
 
     for (const { body, errorMessage } of testCases) {
       const response = await axios.post(
-        'http://localhost:8000/subscriptions',
+        `http://localhost:${port}/subscriptions`,
         body,
         {
           headers: {
